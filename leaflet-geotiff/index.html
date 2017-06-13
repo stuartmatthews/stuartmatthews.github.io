@@ -55,7 +55,7 @@
 		id: 'mapbox.streets'
 	}).addTo(mymap);
 
-    var windSpeed = L.geoTIFFclip(
+    var windSpeed = L.leafletGeotiff(
             url='tif/wind_speed.tif',
             options={band: 0,
                 displayMin: 0,
@@ -69,7 +69,7 @@
             }
         ).addTo(mymap);
         
-    var windDirection = L.geoTIFFclip(
+    var windDirection = L.leafletGeotiff(
             url='tif/wind_direction.tif',
             options={band: 0,
                 displayMin: 0,

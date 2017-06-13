@@ -16,7 +16,7 @@ if(typeof(GeoTIFF)=='undefined'){
     throw new Error("GeoTIFF not defined");
 };
 
-L.GeoTIFFclip = L.ImageOverlay.extend({
+L.LeafletGeotiff = L.ImageOverlay.extend({
     initialize: function (url, options) { 
         this.raster = {};
         if (options.bounds) {
@@ -334,6 +334,6 @@ L.GeoTIFFclip = L.ImageOverlay.extend({
     },
 });
 
-L.geoTIFFclip = function (url, bounds, options) {
-    return new L.GeoTIFFclip(url, bounds, options);
+L.leafletGeotiff = function (url, bounds, options) {
+    return new L.LeafletGeotiff(url, bounds, options);
 };

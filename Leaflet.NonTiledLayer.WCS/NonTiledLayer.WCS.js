@@ -27,7 +27,6 @@ L.NonTiledLayer.WCS = L.NonTiledLayer.extend({
         for (var i in options.wcsOptions) {
             wcsParams[i] = options.wcsOptions[i];
         }
-
         this.wcsParams = wcsParams;
 
         this.options.colorScale = (options.colorScale==undefined) ? 'viridis' : options.colorScale;
@@ -77,6 +76,23 @@ L.NonTiledLayer.WCS = L.NonTiledLayer.extend({
 
         return this;
     },
+    setBand: function (band) {
+        this.options.band = band
+        var image = this.tiff.getImage(this.options.image);
+        this.raster.data = image.readRasters({samples: [band]})[0];
+        this.raster.width = image.getWidth();
+        this.raster.height = image.getHeight();
+    },
+    setColorScale: function (colorScale)  {
+        this.options.colorScale = colorScale;
+        this._preLoadColorScale();
+        this._renderImage();
+        
+    },
+    getValueAtPoint: function (location) {
+        var i = parseInt(location.y*this.raster.width+location.x);
+        return this.raster.data[i];
+    },
     _getData: function(url) {
         var self = this;
         var request = new XMLHttpRequest();
@@ -100,14 +116,7 @@ L.NonTiledLayer.WCS = L.NonTiledLayer.extend({
             this.options.band = 0;
         }
         this.setBand(this.options.band);
-        this.renderImage();
-    },
-    setBand: function (band) {
-        this.options.band = band
-        var image = this.tiff.getImage(this.options.image);
-        this.raster.data = image.readRasters({samples: [band]})[0];
-        this.raster.width = image.getWidth();
-        this.raster.height = image.getHeight();
+        this._renderImage();
     },
     _preLoadColorScale: function () {
         var canvas = document.createElement('canvas');
@@ -130,7 +139,7 @@ L.NonTiledLayer.WCS = L.NonTiledLayer.extend({
                 data: self.raster.data,
                 width: self.raster.width, height: self.raster.height,
                 domain: [self.options.displayMin, self.options.displayMax], colorScale: this.options.colorScale,
-                clampLow: false, clampHigh: false,
+                clampLow: self.options.clampLow, clampHigh: self.options.clampHigh,
             });
             this.plot.setNoDataValue(-9999); //TODO: This should be an option not a magic number
             this.plot.render();
@@ -138,13 +147,7 @@ L.NonTiledLayer.WCS = L.NonTiledLayer.extend({
             this.dataURL = this.plotCanvas.toDataURL();
         }
     },
-    setColorScale: function (colorScale)  {
-        this.options.colorScale = colorScale;
-        this._preLoadColorScale();
-        this.renderImage();
-        
-    },
-    renderImage: function () {
+    _renderImage: function () {
         if (this.hasOwnProperty('_map')) {
             this._drawImage();
             if (this._useCanvas) {
@@ -164,11 +167,9 @@ L.NonTiledLayer.WCS = L.NonTiledLayer.extend({
             }
         };
     },
-    getValueAtPoint: function (location) {
-        var i = parseInt(location.y*this.raster.width+location.x);
-        return this.raster.data[i];
-    },
     _update: function () {
+        var bounds = this._getClippedBounds();
+
         if (this._map.getZoom() < this.options.minZoom ||
             this._map.getZoom() > this.options.maxZoom) {
             this._div.style.visibility = 'hidden';
@@ -178,7 +179,6 @@ L.NonTiledLayer.WCS = L.NonTiledLayer.extend({
             this._div.style.visibility = 'visible';
         }
 
-        var bounds = this._getClippedBounds();
 
         // re-project to corresponding pixel bounds
         var pix1 = this._map.latLngToContainerPoint(bounds.getNorthWest());

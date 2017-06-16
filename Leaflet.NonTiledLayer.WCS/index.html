@@ -9,6 +9,7 @@
 <div >
     <div style="width:30%;float:left;">
         <h1>Leaflet NonTiledLayer.WCS demo</h1>
+        <span id="statusText">Loading data...</span></p>
         Select a color scale 
         <select onchange="changeColorScale(this)">
             <option selected="" value="rainbow">Rainbow</option>
@@ -65,6 +66,11 @@
         document.getElementById("dataValue").innerHTML = wcsLayer.getValueAtPoint(e.containerPoint).toFixed(1);
     });
    
-            
+    mymap.on('wcsloading', function(layer) {        
+        document.getElementById("statusText").innerHTML = 'Loading data...'
+    });        
+    mymap.on('wcsloaded', function(layer) {        
+        document.getElementById("statusText").innerHTML = 'Ready.'
+    });        
 </script>  
  

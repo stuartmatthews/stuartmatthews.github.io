@@ -233,7 +233,7 @@ angular.module('leafletApp').service('incidentService',['$http','messageService'
             return promise;
         },
         getNT: function () {    
-            var url = 'https://www.pfes.nt.gov.au/incidentmap/json/ntfrsincidents.json'
+            var url = 'http://www.pfes.nt.gov.au/incidentmap/json/ntfrsincidents.json'
             var cors_url = 'https://crossorigin.me/'+url;
             var promise = $http.get(cors_url).then(function(response) {
                 //Convert json to valid geojson

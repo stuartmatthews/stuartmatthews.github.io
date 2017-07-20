@@ -334,9 +334,10 @@ angular.module('leafletApp').service('incidentService',['$http','messageService'
             return promise;
         },
         getTAS: function () {    
-            var url = 'https://www.fire.tas.gov.au/gearth.jsp';
+            // var url = 'https://www.fire.tas.gov.au/gearth.jsp';
             var url = 'https://www.fire.tas.gov.au/Show?pageId=bfKml2';
-            var incidents = omnivore.kml(url);
+            var cors_url = 'https://crossorigin.me/'+url;
+            var incidents = omnivore.kml(cors_url);
             incidents.on('ready', function() {
                 incidents.eachLayer(function(layer) {
                     layer.bindPopup(layer.feature.properties.description);

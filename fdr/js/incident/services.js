@@ -174,7 +174,7 @@ angular.module('leafletApp').service('incidentService',['$http','messageService'
             return promise;
         },
         getSA: function () {    
-            var url = 'http://data.eso.sa.gov.au/prod/cfs/criimson/cfs_current_incidents.json'
+            var url = 'https://data.eso.sa.gov.au/prod/cfs/criimson/cfs_current_incidents.json'
             var cors_url = 'https://crossorigin.me/'+url;
             var promise = $http.get(cors_url).then(function(response) {
                 //Convert json to valid geojson
@@ -233,7 +233,7 @@ angular.module('leafletApp').service('incidentService',['$http','messageService'
             return promise;
         },
         getNT: function () {    
-            var url = 'http://www.pfes.nt.gov.au/incidentmap/json/ntfrsincidents.json'
+            var url = 'https://www.pfes.nt.gov.au/incidentmap/json/ntfrsincidents.json'
             var cors_url = 'https://crossorigin.me/'+url;
             var promise = $http.get(cors_url).then(function(response) {
                 //Convert json to valid geojson
@@ -334,8 +334,8 @@ angular.module('leafletApp').service('incidentService',['$http','messageService'
             return promise;
         },
         getTAS: function () {    
-            var url = 'http://www.fire.tas.gov.au/gearth.jsp';
-            var url = 'http://www.fire.tas.gov.au/Show?pageId=bfKml2';
+            var url = 'https://www.fire.tas.gov.au/gearth.jsp';
+            var url = 'https://www.fire.tas.gov.au/Show?pageId=bfKml2';
             var incidents = omnivore.kml(url);
             incidents.on('ready', function() {
                 incidents.eachLayer(function(layer) {

@@ -157,13 +157,15 @@ angular.module('leafletApp').service('fweMapService',['$http','$rootScope','inci
                                 console.log(hour,minute);
                                 var nextDate = new Date(Date.UTC(year,month,day,hour,minute)).getTime();  
                             }
-                            if ((new Date() - nextDate)<24*3600*1000) {
+                            // if ((new Date() - nextDate)<24*3600*1000) {
                                 fweMapService.data.dateIntegers[state].push(nextDate);
                                 if (fweMapService.data.availableDates.indexOf(nextDate)==-1) {
                                     // console.log(state, response.data.timeSteps[state][j]);
                                     fweMapService.data.availableDates.push(nextDate);
-                                }
-                            }
+                                } 
+                            // } else {
+                                // fweMapService.data.dateLiterals[state].splice(0,1);
+                            // }
                         }
                     }
                     fweMapService.data.availableDates.sort();

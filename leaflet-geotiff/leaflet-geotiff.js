@@ -227,10 +227,11 @@ L.LeafletGeotiff = L.ImageOverlay.extend({
             var plotCanvas = document.createElement("canvas");
             plotCanvas.width = size.x;
             plotCanvas.height = size.y;
-            var ctx = plotCanvas.getContext("2d");
-            ctx.clearRect(0, 0, plotCanvas.width, plotCanvas.height);
 
             if (this.options.vector==true) {
+                var ctx = plotCanvas.getContext("2d");
+                ctx.clearRect(0, 0, plotCanvas.width, plotCanvas.height);
+
                 var arrowSize = this.options.arrowSize;
                 var zoom = this._map.getZoom();
                 var gridPxelSize = (rasterPixelBounds.max.x - rasterPixelBounds.min.x) / self.raster.width;
@@ -286,6 +287,15 @@ L.LeafletGeotiff = L.ImageOverlay.extend({
                     south: this._rasterBounds._southWest.lat,
                     east: this._rasterBounds._northEast.lng,
                     west: this._rasterBounds._southWest.lng,
+                    domain: [self.options.displayMin, self.options.displayMax], 
+                    colorScale: this.options.colorScale,
+                    clampLow: this.options.clampLow,
+                    clampHigh: this.options.clampHigh,
+                    canvas: plottyCanvas,
+                    useWebGL: true,
+                });
+                plot.setNoDataValue(-9999); 
+                plot.render({
                     plotWidth: plotWidth, plotHeight: plotHeight,
                     xOrigin: xOrigin,
                     yOrigin: yOrigin,
@@ -295,16 +305,7 @@ L.LeafletGeotiff = L.ImageOverlay.extend({
                     transformationD: transformationD,
                     scale: scale,
                     d: d,
-                    domain: [self.options.displayMin, self.options.displayMax], 
-                    colorScale: this.options.colorScale,
-                    clampLow: this.options.clampLow,
-                    clampHigh: this.options.clampHigh,
-                    // canvas: plottyCanvas,
-                    canvas: plottyCanvas,
-                    useWebGL: true,
                 });
-                plot.setNoDataValue(-9999); 
-                plot.render();
                 
                 this.colorScaleData = plot.colorScaleCanvas.toDataURL();            
                 var ctx = plotCanvas.getContext("2d");

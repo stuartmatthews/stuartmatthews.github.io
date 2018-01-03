@@ -49,6 +49,7 @@ var geoPlotty = (function() {
     uniform mat3 u_matrix;
     uniform vec2 u_resolution;
     varying vec2 v_texCoord;
+    varying vec2 v_pixCoord;
     void main() {
       // apply transformation matrix
       vec2 position = (u_matrix * vec3(a_position, 1)).xy;
@@ -62,6 +63,7 @@ var geoPlotty = (function() {
       // pass the texCoord to the fragment shader
       // The GPU will interpolate this value between points.
       v_texCoord = a_texCoord;
+      v_pixCoord = a_position;
     }`;
 
 
@@ -80,7 +82,7 @@ var geoPlotty = (function() {
     uniform bool u_clampLow;
     uniform bool u_clampHigh;
 
-    // spatial reference stuff
+    // spatial reference 
     uniform float latMax;
     uniform float latMin;
     uniform float lngMin;
@@ -97,19 +99,18 @@ var geoPlotty = (function() {
     uniform float d;
     
     // the texCoords passed in from the vertex shader.
-    varying vec2 v_texCoord;
+    varying vec2 v_pixCoord;
 
     void main() {
-      float yUntransformed = ((yOrigin+v_texCoord.y) / scale - transformationD) / transformationC;
+      float yUntransformed = ((yOrigin+v_pixCoord.y) / scale - transformationD) / transformationC;
       float currentLat = (2.0 * atan(exp(yUntransformed)) - (PI / 2.0)) * d;
-      float rasterY = (currentLat - latMin)/(latMax-latMin);
+      float rasterY = 1.0-(currentLat - latMin)/(latMax-latMin);
 
-      float xUntransformed = ((xOrigin+v_texCoord.x) / scale - transformationB) / transformationA;
+      float xUntransformed = ((xOrigin+v_pixCoord.x) / scale - transformationB) / transformationA;
       float currentLng = xUntransformed * d;
       float rasterX = (currentLng - lngMin)/(lngMax-lngMin); 
       
-      // float value = texture2D(u_textureData, vec2(rasterX,rasterY))[0];
-      float value = texture2D(u_textureData, v_texCoord)[0];
+      float value = texture2D(u_textureData, vec2(rasterX,rasterY))[0];
       
       if (value == u_noDataValue)
         gl_FragColor = vec4(0.0, 0, 0, 0.0);
@@ -268,7 +269,6 @@ var geoPlotty = (function() {
   };
 
   var createDataset = function(gl, id, data, width, height) {
-      console.log(width,height);
     var textureData;
     if (gl) {
       // gl.viewport(0, 0, width, height);
@@ -530,17 +530,16 @@ var geoPlotty = (function() {
   /**
    * Render the map to the specified canvas with the given settings.
    */
-  plot.prototype.render = function() {
-    console.log(this);
+  plot.prototype.render = function(options) {
     var canvas = this.canvas;
     var dataset = this.currentDataset;
 
-    canvas.width = this.options.plotWidth;
-    canvas.height = this.options.plotHeight;
+    canvas.width = options.plotWidth;
+    canvas.height = options.plotHeight;
 
     if (this.gl) {
       var gl = this.gl;
-      gl.viewport(0, 0, this.options.plotWidth, this.options.plotHeight);
+      gl.viewport(0, 0, options.plotWidth, options.plotHeight);
       gl.useProgram(this.program);
       // set the images
       gl.uniform1i(gl.getUniformLocation(this.program, "u_textureData"), 0);
@@ -583,21 +582,20 @@ var geoPlotty = (function() {
       gl.uniform1f(latMin, this.options.south);
       gl.uniform1f(lngMax, this.options.east);
       gl.uniform1f(lngMin, this.options.west);
-      gl.uniform1f(xOrigin, this.options.xOrigin);
-      gl.uniform1f(yOrigin, this.options.yOrigin);
-      gl.uniform1f(transformationA, this.options.transformationA);
-      gl.uniform1f(transformationB, this.options.transformationB);
-      gl.uniform1f(transformationC, this.options.transformationC);
-      gl.uniform1f(transformationD, this.options.transformationD);
-      gl.uniform1f(scale, this.options.scale);
-      gl.uniform1f(d, this.options.d);
+      gl.uniform1f(xOrigin, options.xOrigin);
+      gl.uniform1f(yOrigin, options.yOrigin);
+      gl.uniform1f(transformationA, options.transformationA);
+      gl.uniform1f(transformationB, options.transformationB);
+      gl.uniform1f(transformationC, options.transformationC);
+      gl.uniform1f(transformationD, options.transformationD);
+      gl.uniform1f(scale, options.scale);
+      gl.uniform1f(d, options.d);
       
       var positionBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.enableVertexAttribArray(positionLocation);
       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-      console.log(canvas.width, canvas.height);
       setRectangle(gl, 0, 0, canvas.width, canvas.height);
 
       // Draw the rectangle.

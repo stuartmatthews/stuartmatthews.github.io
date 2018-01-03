@@ -8,16 +8,17 @@
 
 // Note this will only work with ESPG:4326 tiffs
 
-if(typeof(plotty)=='undefined'){
-    throw new Error("plotty not defined");
-};
-
-if(typeof(GeoTIFF)=='undefined'){
-    throw new Error("GeoTIFF not defined");
-};
 
 L.LeafletGeotiff = L.ImageOverlay.extend({
     initialize: function (url, options) { 
+        if(typeof(plotty)=='undefined'){
+            throw new Error("plotty not defined");
+        };
+
+        if(typeof(GeoTIFF)=='undefined'){
+            throw new Error("GeoTIFF not defined");
+        };
+
         this.raster = {};
         if (options.bounds) {
             this._rasterBounds = L.latLngBounds(options.bounds);
@@ -171,6 +172,7 @@ L.LeafletGeotiff = L.ImageOverlay.extend({
             colorScale: this.options.colorScale,
             clampLow: this.options.clampLow,
             clampHigh: this.options.clampHigh,
+            useWebGL: false,
         });
         this.colorScaleData = plot.colorScaleCanvas.toDataURL();            
     },
